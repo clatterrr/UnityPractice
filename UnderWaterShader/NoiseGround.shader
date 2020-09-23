@@ -26,6 +26,7 @@ Shader "clat/NoiseGround"
            {
                    float4 vertex : POSITION;
                    float3 normal : NORMAL;
+                   float4 tangent : TANGENT;
                    float2 texcoord : TEXCOORD0;
             };
 
@@ -53,8 +54,9 @@ Shader "clat/NoiseGround"
              void vert(inout appdate v)
              {
                  float3 v0 = v.vertex.xyz;
-                 float3 v1 = v0 + float3(0.01, 0, 0);
-                 float3 v2 = v0 + float3(0, 0, 0.01);
+                 float3 bitangent = cross(v.normal, v.tangent.xyz);
+                 float3 v1 = v0 + float3(v.tangent.xyz * 0.01);
+                 float3 v2 = v0 + float3(bitangent * 0.01);
 
                  float ns0 = _NoiseScale * snoise(float3(v0.x + _NoiseOffset.x, v0.y + _NoiseOffset.y, v0.z + _NoiseOffset.z) * _NoiseFrequency);
                  v0.xyz += ((ns0 + 1) / 2) * v.normal;
@@ -66,7 +68,7 @@ Shader "clat/NoiseGround"
                  v2.xyz += ((ns2 + 1) / 2) * v.normal;
 
                  float vn = cross(v2 - v0, v1 - v0);
-                 v.normal = normalize(vn);
+                 v.normal = normalize(-vn);
                  v.vertex.xyz = v0;
              }
 
