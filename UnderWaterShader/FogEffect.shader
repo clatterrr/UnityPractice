@@ -1,8 +1,11 @@
-﻿Shader "Hidden/FogEffect"
+Shader "Hidden/FogEffect"
 {
     Properties
     {
         _MainTex ("Texture", 2D) = "white" {}
+        _FogColor("Fog Color",Color) = (1,1,1,1)
+        _DepthStart("Depth Start",float) = 1
+        _DepthDistance("Depth Distance",float) = 1
     }
         SubShader
     {
@@ -18,6 +21,8 @@
             #include "UnityCG.cginc"
 
             sampler2D _CameraDepthTexture;
+            fixed4 _FogColor;
+            float _DepthStart, _DepthDistance;
 
             struct appdata
             {
@@ -46,7 +51,9 @@
             fixed4 frag(v2f i) : SV_Target
             {
                 float depthValue = Linear01Depth(tex2Dproj(_CameraDepthTexture,UNITY_PROJ_COORD(i.scrPos)).r);
-            return float4(depthValue, depthValue, depthValue, 1.0f);
+                fixed4 fogColor = _FogColor * depthValue;
+                fixed4 col = tex2Dproj(_MainTex, i.scrPos);
+                return lerp(col, fogColor, depthValue);
             }
             ENDCG
         }
