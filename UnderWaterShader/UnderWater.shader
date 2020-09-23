@@ -1,4 +1,4 @@
-﻿Shader "Hidden/UnderWater"
+Shader "Hidden/UnderWater"
 {
     Properties
     {
@@ -6,6 +6,7 @@
         _NoiseScale("Noise Scale",float) = 1
         _NoiseFrequency("Noise frequency",float) = 1
         _NoiseSpeed("Noise Speed",float) = 1
+        _PixelOffset("Pixel Offset",float) = 1
     }
         SubShader
         {
@@ -20,7 +21,7 @@
 
                 #include "UnityCG.cginc"
                 #include "noiseSimplex.cginc"
-                uniform float _NoiseFrequency,_NoiseScale,_NoiseSpeed;
+                uniform float _NoiseFrequency,_NoiseScale,_NoiseSpeed,_PixelOffset;
 
             struct appdata
             {
@@ -48,9 +49,11 @@
             fixed4 frag(v2f i) : SV_Target
             {
                 float3 spos = float3(i.scrPos.x,i.scrPos.y,0) * _NoiseFrequency;
-                spos.z += _Time.x * _NoiseSpeed;
+                spos.z += _NoiseSpeed * _Time.x;
                 float noise = _NoiseScale * ((snoise(spos) + 1) / 2);
-                fixed4 col = fixed4(noise, noise, noise, 1);
+                float4 noiseToDirection = float4(cos(noise * 3.1415927 * 2), sin(noise * 3.1415927 * 2), 0, 0);
+            //    fixed4 col = tex2Dproj(_MainTex, i.scrPos + (normalize(noiseToDirection) * _PixelOffset));
+                fixed4 col = tex2Dproj(_MainTex, i.scrPos + normalize(noiseToDirection) * _PixelOffset);
                 return col;
             }
             ENDCG
