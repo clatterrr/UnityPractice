@@ -1,9 +1,10 @@
-Shader "clat/NoiseGround"
+﻿Shader "clat/NoiseGround"
 {
     Properties
     {
         _Tess("Tessellation",Range(0,16)) = 4
         _Color("Color",Color) = (1,1,1,1)
+        _NormalMap("Normal Map",2D) = "bump" {}
         _MainTex("Albedo(RGB)",2D) = "white"{}
         _Glossiness("smoothness",Range(0,1)) = 0.5
         _Metallic("Metallic",Range(0,1)) = 0.0
@@ -35,7 +36,7 @@ Shader "clat/NoiseGround"
                        float2 uv_MainTex;
              };
                
-             sampler2D _MainTex;
+             sampler2D _MainTex,_NormalMap;
              float _Tess;
              half _Glossiness;
              half _Metallic;
@@ -78,6 +79,7 @@ Shader "clat/NoiseGround"
                  o.Albedo = c.rgb;
                  o.Metallic = _Metallic;
                  o.Smoothness = _Glossiness;
+                 o.Normal = UnpackNormal(tex2D(_NormalMap, IN.uv_MainTex));
              }
             ENDCG
         }
