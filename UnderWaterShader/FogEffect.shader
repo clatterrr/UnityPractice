@@ -50,7 +50,8 @@ Shader "Hidden/FogEffect"
 
             fixed4 frag(v2f i) : SV_Target
             {
-                float depthValue = Linear01Depth(tex2Dproj(_CameraDepthTexture,UNITY_PROJ_COORD(i.scrPos)).r);
+                float depthValue = Linear01Depth(tex2Dproj(_CameraDepthTexture,UNITY_PROJ_COORD(i.scrPos)).r) * _ProjectionParams.z;
+                depthValue = saturate((depthValue - _DepthStart) / _DepthDistance);
                 fixed4 fogColor = _FogColor * depthValue;
                 fixed4 col = tex2Dproj(_MainTex, i.scrPos);
                 return lerp(col, fogColor, depthValue);
